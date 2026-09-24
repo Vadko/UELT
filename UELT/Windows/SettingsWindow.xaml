@@ -1,0 +1,66 @@
+﻿<Window x:Class="UELT.SettingsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Налаштування" SizeToContent="Height" Width="380" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" Background="{DynamicResource WindowBackgroundBrush}">
+    <StackPanel Margin="3">
+        <TabControl Height="320">
+            <TabItem Header="Загальні">
+                <StackPanel Margin="5">
+                    <TextBlock Text="Файли та збереження" Foreground="{DynamicResource TextForegroundBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <CheckBox x:Name="CreateStatusFilesCheckBox" Content="Створювати .STATUS файли" Margin="10,0,0,16" 
+                              ToolTip="Вмикає створення файлу, який зберігає статуси рядків (На вичитку і Затверджено)"/>
+        <TextBlock Text="Code Vein 2 шифрування" Foreground="{DynamicResource TextForegroundBrush}" FontWeight="SemiBold" Margin="0,0,0,6"/>
+        <CheckBox x:Name="CV2DecryptCheckBox" Content="Дешифрування locres файлів" Margin="10,0,0,0" 
+                  ToolTip="Вмикає глобальне дешифрування/шифрування locres файлів, навіть тих, які не зашифровані (не рекомендується для звичайного використання)"/>
+        <StackPanel Orientation="Horizontal" Margin="10,6,0,16" IsEnabled="{Binding IsChecked, ElementName=CV2DecryptCheckBox}">
+            <TextBlock Text="Версія:" Foreground="{DynamicResource TextForegroundBrush}" VerticalAlignment="Center" Margin="19,0,8,0"/>
+            <RadioButton x:Name="CV2ReleaseRadio" Content="Release" GroupName="CV2Key" 
+                         VerticalAlignment="Center" Margin="0,0,12,0"/>
+            <RadioButton x:Name="CV2DemoRadio" Content="Demo" GroupName="CV2Key" 
+                         VerticalAlignment="Center"/>
+        </StackPanel>
+                    <TextBlock Text="Інтеграції" Foreground="{DynamicResource TextForegroundBrush}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <CheckBox x:Name="DiscordPresenceCheckBox" Content="Discord Rich Presence" Margin="10,0,0,16" ToolTip="Вмикає показ активності у Discord"/>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Пам’ять перекладів">
+                <DockPanel Margin="5">
+                    <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                        <TextBlock x:Name="MaxVariantsLabel" Text="Максимум варіантів перекладу: 5" Foreground="{DynamicResource TextForegroundBrush}" Margin="0,0,0,2"/>
+                        <Slider x:Name="MaxVariantsSlider" Minimum="3" Maximum="8" Value="5" TickFrequency="1" IsSnapToTickEnabled="True" 
+                                ValueChanged="MaxVariantsSlider_ValueChanged"/>
+                        <Button x:Name="RecordAllTranslationsButton" Content="Записати переклади зі всіх вкладок" Width="220" MinHeight="25" Margin="0,8,0,0"
+                                Click="RecordAllTranslations_Click"/>
+                        <Button x:Name="ApplyMemoryTranslationsButton" Content="Застосувати переклади до всіх вкладок" Width="240" MinHeight="25" Margin="0,8,0,0"
+                                Click="ApplyMemoryTranslations_Click"/>
+                        <CheckBox x:Name="UseAllMemoriesCheckBox" Content="Використовувати всі одразу" DockPanel.Dock="Top" Margin="0,8,0,0" 
+                                  Checked="UseAllMemoriesCheckBox_Changed" Unchecked="UseAllMemoriesCheckBox_Changed"/>
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,6,0,0" HorizontalAlignment="Center">
+                        <Button Content="Створити" Width="75" MinHeight="25" Click="CreateMemory_Click"/>
+                        <Button x:Name="DeleteMemoryButton" Content="Видалити" Width="75" MinHeight="25" Margin="10,0,0,0" Click="DeleteMemory_Click" IsEnabled="False"/>
+                    </StackPanel>
+                    <ListBox x:Name="MemoriesListBox" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
+                             Background="{DynamicResource TextBoxBackgroundBrush}" SelectionMode="Single">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsActive, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                    <RadioButton Grid.Column="2" GroupName="TMWriteTarget" ToolTip="Записувати нові переклади сюди"
+                                                 IsChecked="{Binding IsWriteTarget, Mode=OneWay}" Checked="WriteTargetRadio_Checked" VerticalAlignment="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+            </TabItem>
+        </TabControl>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,2">
+            <Button Content="Зберегти" Width="75" MinHeight="25" Click="OkButton_Click"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

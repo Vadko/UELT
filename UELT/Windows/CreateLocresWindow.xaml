@@ -1,0 +1,58 @@
+﻿<Window x:Class="UELT.CreateLocresWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Створення locres" Width="360" SizeToContent="Height" WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Background="{DynamicResource WindowBackgroundBrush}" AllowDrop="True" DragOver="Window_DragOver" Drop="Window_Drop" DragLeave="Window_DragLeave">
+    <Grid>
+        <Grid Margin="5" x:Name="MainContent">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Margin="0,0,0,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="Формат:" VerticalAlignment="Center" Padding="0"/>
+                <ComboBox Grid.Column="1" x:Name="VersionComboBox" Background="{DynamicResource TextBoxBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                          VerticalAlignment="Center" MinHeight="25" MaxDropDownHeight="200">
+                    <ComboBoxItem Content="Legacy (v0)" Tag="0"/>
+                    <ComboBoxItem Content="Compact (v1)" Tag="1"/>
+                    <ComboBoxItem Content="Optimized CRC32 (v2)" Tag="2"/>
+                    <ComboBoxItem Content="Optimized CityHash64 UTF-16 (v3)" Tag="3" IsSelected="True"/>
+                    <ComboBoxItem Content="Optimized CityHash64 + ExternID (v4)" Tag="4"/>
+                </ComboBox>
+            </Grid>
+            <Grid Grid.Row="1" Margin="0,0,0,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="25"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="Файл:" VerticalAlignment="Center" Padding="0"/>
+                <TextBox Grid.Column="1" x:Name="TxtPathTextBox" IsReadOnly="True" Margin="0,0,10,0" Background="{DynamicResource TextBoxBackgroundBrush}"
+                         BorderBrush="{DynamicResource BorderBrush}" VerticalContentAlignment="Center" MinHeight="25" AllowDrop="True" 
+                         PreviewDragOver="TxtPathTextBox_PreviewDragOver" PreviewDrop="TxtPathTextBox_PreviewDrop"/>
+                <Button Grid.Column="2" Content="..." Click="BrowseTXT_Click" MinHeight="25"/>
+            </Grid>
+            <TextBlock Grid.Row="2" x:Name="TxtInfoText" Foreground="{DynamicResource TextForegroundBrush}" Opacity="0.6" Margin="0,0,0,5" HorizontalAlignment="Center"
+                       Text="Очікується TXT файл(-и) (Див. документацію)"/>
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button Content="Очистити вибір" Width="105" MinHeight="25" Click="ClearFiles_Click"/>
+            </StackPanel>
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="CreateButton" Content="Створити" Width="80" MinHeight="25" Click="CreateButton_Click" IsEnabled="False"/>
+            </StackPanel>
+        </Grid>
+        <!-- Оверлей Drag & Drop (зелена рамка) -->
+        <Border x:Name="DragOverlay" Background="Transparent" Visibility="Collapsed" IsHitTestVisible="False">
+            <Border BorderBrush="#4CAF50" BorderThickness="3" CornerRadius="6" Margin="5" Background="#104CAF50">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="📁" FontSize="42" HorizontalAlignment="Center" Margin="0,0,0,8" Foreground="{DynamicResource TextForegroundBrush}"/>
+                    <TextBlock Text="Перетягніть TXT або JSON файл" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextForegroundBrush}"/>
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</Window>

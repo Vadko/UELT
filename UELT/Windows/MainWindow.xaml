@@ -1,0 +1,825 @@
+﻿<Window x:Class="UELT.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ae="http://icsharpcode.net/sharpdevelop/avalonedit" xmlns:local="clr-namespace:UELT.Hikaro" mc:Ignorable="d" Title="UELT" Width="960" Height="600"
+        MinWidth="800" MinHeight="400" WindowStartupLocation="CenterScreen" AllowDrop="True" DragEnter="Window_DragEnter" Drop="Window_Drop"
+        Background="{DynamicResource WindowBackgroundBrush}" KeyDown="Window_KeyDown">
+    <Window.Resources>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <local:SearchModeConverter x:Key="SearchModeConverter"/>
+        <local:SearchFilterConverter x:Key="SearchFilterConverter"/>
+        <local:StringEmptyConverter x:Key="StringEmptyConverter"/>
+        <local:HighlightDataConverter x:Key="HighlightDataConverter"/>
+        <Style x:Key="ThinMenuSeparator" TargetType="Separator">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Separator">
+                        <Border Height="0.5" Background="{DynamicResource BorderBrush}" Margin="0,1"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <DockPanel>
+        <!-- ═══ Меню + панель інструментів ═══ -->
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="0,0,0,1">
+            <Menu Background="{DynamicResource MenuBackgroundBrush}">
+                <MenuItem Header="Файл" Height="30">
+                    <MenuItem Header="Відкрити" Click="OpenFile_Click" InputGestureText="Ctrl+O"/>
+                    <MenuItem Header="Відкрити теку" Click="OpenFolder_Click" InputGestureText="Ctrl+Shift+O"/>
+                    <MenuItem x:Name="SaveOverwriteMenuItem" Header="Зберегти" Click="SaveOverwrite_Click" IsEnabled="False" InputGestureText="Ctrl+S"/>
+                    <MenuItem x:Name="SaveAsMenuItem" Header="Зберегти як..." Click="SaveAs_Click" IsEnabled="False"/>
+                    <MenuItem x:Name="SaveAllMenuItem" Header="Зберегти все" Click="SaveAll_Click" IsEnabled="False" InputGestureText="Ctrl+Shift+S"/>
+                    <MenuItem x:Name="SaveAllAsMenuItem" Header="Зберегти все як..." Click="SaveAllAs_Click" IsEnabled="False"/>
+                    <MenuItem Header="Створити locres" Click="CreateLocres_Click"/>
+                    <MenuItem Header="Порівняти два locres" Click="CompareLocres_Click"/>
+                    <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                    <MenuItem x:Name="RecentFilesMenuItem" Header="Останні файли">
+                        <MenuItem Header="(порожньо)" IsEnabled="False"/>
+                    </MenuItem>
+                    <MenuItem x:Name="RecentFoldersMenuItem" Header="Останні теки"/>
+                </MenuItem>
+                <MenuItem Header="Операції" x:Name="OperationsMenuItem">
+                    <MenuItem x:Name="LoadStatusesMenuItem" Header="Завантажити статуси рядків" Click="LoadStatuses_Click"/>
+                    <MenuItem Header="Експортувати">
+                        <MenuItem Header="CSV">
+                            <MenuItem Header="Усі рядки" Click="ExportAllToCSV_Click"/>
+                            <MenuItem Header="Лише виділені рядки" Click="ExportSelectedToCSV_Click"/>
+                            <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                            <MenuItem Header="Пакетно всі рядки" Click="BatchExportToCSV_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="TXT">
+                            <MenuItem Header="Лише текст" Click="ExportSimpleToTXT_Click"/>
+                            <MenuItem Header="Текст з ID" Click="ExportWithIDFullToTXT_Click"/>
+                            <MenuItem Header="Лише виділені рядки з ID" Click="ExportSelectedWithIDToTXT_Click"/>
+                            <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                            <MenuItem Header="Пакетно всі рядки з ID" Click="BatchExportWithIDToTXT_Click"/>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="Імпортувати">
+                        <MenuItem Header="CSV">
+                            <MenuItem Header="За порядком рядків" Click="ImportCSVByRowOrder_Click"/>
+                            <MenuItem Header="За ID" Click="ImportCSVByID_Click"/>
+                            <MenuItem Header="За оригінальним текстом" Click="ImportCSVByOriginal_Click"/>
+                            <MenuItem Header="За ID та оригінальним текстом" Click="ImportCSVByIDAndOriginal_Click"/>
+                            <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                            <MenuItem Header="Пакетно за порядком рядків" Click="BatchImportCSVByRowOrder_Click"/>
+                            <MenuItem Header="Пакетно за ID" Click="BatchImportCSVByID_Click"/>
+                            <MenuItem Header="Пакетно за ориг. текстом" Click="BatchImportCSVByOriginalText_Click"/>
+                            <MenuItem Header="Пакетно за ID та ориг. текстом" Click="BatchImportCSVByIDAndOriginalText_Click"/>
+                        </MenuItem>
+                        <MenuItem Header="TXT">
+                            <MenuItem Header="За порядком рядків" Click="ImportTXTByRowOrder_Click"/>
+                            <MenuItem Header="За ID" Click="ImportTXTByID_Click"/>
+                            <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                            <MenuItem Header="Пакетно за ID" Click="BatchImportTXTByID_Click"/>
+                        </MenuItem>
+                        <MenuItem x:Name="ImportFromLocresMenuItem" Header="LOCRES">
+                            <MenuItem Header="За ID у стовпчик Переклад" Click="ImportFromLocres_Click"/>
+                            <MenuItem Header="Пакетно за ID у стовпчик Переклад" Click="ImportFromLocresFolder_Click"/>
+                            <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                            <MenuItem Header="За ID у стовпчик Оригінал" Click="ImportFromLocresToOriginal_Click"/>
+                            <MenuItem Header="Пакетно за ID у стовпчик Оригінал" Click="ImportFromLocresFolderToOriginal_Click"/>
+                        </MenuItem>
+                        <MenuItem x:Name="ImportFromUassetMenuItem" Header="UASSET/UMAP">
+                            <MenuItem Header="За ID у стовпчик Переклад" Click="ImportFromUasset_Click"/>
+                            <MenuItem Header="Пакетно за ID у стовпчик Переклад" Click="ImportFromUassetFolder_Click"/>
+                            <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                            <MenuItem Header="За ID у стовпчик Оригінал" Click="ImportFromUassetToOriginal_Click"/>
+                            <MenuItem Header="Пакетно за ID у стовпчик Оригінал" Click="ImportFromUassetFolderToOriginal_Click"/>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem x:Name="LocresMenuItem" Header="Операції для locres" Visibility="Collapsed">
+                        <MenuItem Header="Додати новий рядок" Click="AddNewRow_Click"/>
+                        <MenuItem Header="Редагувати рядок" Click="EditSelectedRow_Click"/>
+                        <MenuItem Header="Видалити виділені рядки" Click="RemoveSelectedRows_Click"/>
+                        <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                        <MenuItem Header="Імпортувати нові рядки з TXT" Click="ImportNewRowsFromTXT_Click"/>
+                        <MenuItem Header="Імпортувати хеші тексту" Click="ImportHashesFromLocres_Click"/>
+                        <MenuItem Header="Об’єднати декілька locres" Click="MergeLocresFilesUnique_Click"/>
+                        <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                        <MenuItem Header="Деталі про locres" Click="LocresFileInfo_Click"/>
+                    </MenuItem>
+                    <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                    <MenuItem x:Name="UndoMenuItem" Header="Скасувати" Click="Undo_Click" IsEnabled="False" InputGestureText="Ctrl+Z"/>
+                    <MenuItem x:Name="RedoMenuItem" Header="Повторити" Click="Redo_Click" IsEnabled="False" InputGestureText="Ctrl+Shift+Z"/>
+                    <MenuItem Header="Замінити" Click="Replace_Click" InputGestureText="Ctrl+H"/>
+                    <MenuItem Header="Глобальний пошук" Click="GlobalSearch_Click" InputGestureText="Ctrl+Shift+F"/>
+                    <MenuItem Header="Глосарій" Click="OpenGlossaryWindow_Click" InputGestureText="Ctrl+G"/>
+                    <MenuItem Header="Глобальне фільтрування" Click="OpenGlobalFilterWindow_Click"/>
+                    <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                    <MenuItem Header="Повернути оригінал у всі рядки" Click="RestoreAllOriginal_Click"/>
+                </MenuItem>
+                <MenuItem Header="?">
+                    <MenuItem Header="Налаштування" Click="SettingsMenuItem_Click"/>
+                    <MenuItem Header="Темна тема" x:Name="ThemeMenuItem" Click="ThemeMenuItem_Click"/>
+                    <MenuItem Header="Загальна статистика" Click="GlobalStats_Click"/>
+                    <MenuItem x:Name="UassetMenuItem" Header="Для uasset/umap" Visibility="Collapsed">
+                        <MenuItem Header="Деталі про uasset/umap" Click="UassetFileInfo_Click"/>
+                    </MenuItem>
+                    <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                    <MenuItem Header="Про програму" Click="AboutMenuItem_Click"/>
+                </MenuItem>
+            </Menu>
+            <Border Width="0.5" Background="{DynamicResource BorderBrush}" Margin="6,0,3,0"/>
+            <Button Width="28" Margin="3,1,3,1" Click="ToggleFileTree_Click" ToolTip="Показати/приховати дерево файлів">
+                <Path Data="{StaticResource FileTreeIcon}" Fill="{DynamicResource TextForegroundBrush}" Width="16" Height="16" Stretch="Uniform"/>
+            </Button>
+            <ToggleButton x:Name="SearchModeToggle" Content="Текст" Width="40" Margin="3,1,3,1" IsEnabled="False" Checked="SearchModeToggle_Checked"
+                          Unchecked="SearchModeToggle_Unchecked" Padding="0,0,0,0" ToolTip="Перемикання режиму пошуку"/>
+            <ComboBox x:Name="SearchComboBox" Width="230" Margin="3,1,3,1" IsEditable="True" IsTextSearchEnabled="False" KeyDown="SearchComboBox_KeyDown"
+                      Background="{DynamicResource TextBoxBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" IsEnabled="False" 
+                      DropDownOpened="SearchComboBox_DropDownOpened">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}"  MaxWidth="350" TextTrimming="CharacterEllipsis" ToolTip="{Binding}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+                <ComboBox.ContextMenu>
+                    <ContextMenu Background="{DynamicResource MenuBackgroundBrush}" Foreground="{DynamicResource MenuForegroundBrush}"
+                                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="0">
+                        <ContextMenu.Resources>
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}"/>
+                        </ContextMenu.Resources>
+                        <MenuItem Header="Очистити" Click="TxtClear_Click" CommandParameter="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                        <MenuItem Header="Вирізати" Command="ApplicationCommands.Cut"/>
+                        <MenuItem Header="Копіювати" Command="ApplicationCommands.Copy"/>
+                        <MenuItem Header="Вставити" Command="ApplicationCommands.Paste"/>
+                    </ContextMenu>
+                </ComboBox.ContextMenu>
+            </ComboBox>
+            <Button x:Name="SearchButton" Width="28" Margin="3,1,3,1" Click="SearchButton_Click" IsEnabled="False">
+                <Path Data="{StaticResource SearchIcon}" Fill="{DynamicResource TextForegroundBrush}" Width="15" Height="15" Stretch="Uniform"/>
+            </Button>
+            <CheckBox x:Name="WholeWordCheckBox" Margin="6,0,3,0" ToolTip="Лише цілі слова" IsEnabled="False" Checked="ChkMutualExclusive_Changed" 
+                      Unchecked="ChkMutualExclusive_Changed">
+                <Border Background="Transparent" Padding="2">
+                    <Path Data="{StaticResource WholeWordIcon}" Fill="{DynamicResource TextForegroundBrush}" Width="20" Height="18" Stretch="Uniform"/>
+                </Border>
+            </CheckBox>
+            <CheckBox x:Name="CaseSensitiveCheckBox" Margin="6,0,3,0" ToolTip="Враховувати регістр" IsEnabled="False">
+                <Border Background="Transparent" Padding="2">
+                    <Path Data="{StaticResource MatchCaseIcon}" Fill="{DynamicResource TextForegroundBrush}" Width="18" Height="16" Stretch="Uniform"/>
+                </Border>
+            </CheckBox>
+            <CheckBox x:Name="ExactMatchCheckBox" Margin="6,0,6,0" ToolTip="Точний збіг рядка" IsEnabled="False" Checked="ChkMutualExclusive_Changed" 
+                      Unchecked="ChkMutualExclusive_Changed">
+                <Border Background="Transparent" Padding="2">
+                    <Path Data="{StaticResource ExactMatchIcon}" Fill="{DynamicResource TextForegroundBrush}" Width="16" Height="13" Stretch="Uniform"/>
+                </Border>
+            </CheckBox>
+            <ComboBox x:Name="FilterComboBox" Width="160" Margin="3,1,3,1" IsEnabled="False" Background="{DynamicResource TextBoxBackgroundBrush}" 
+                      BorderBrush="{DynamicResource BorderBrush}" SelectionChanged="FilterComboBox_SelectionChanged" ToolTip="Фільтр рядків">
+                <ComboBoxItem Tag="None" Content="Усі рядки" IsSelected="True"/>
+                <ComboBoxItem Tag="Modified" Content="Змінені"/>
+                <ComboBoxItem Tag="NeedsReview" Content="На вичитку"/>
+                <ComboBoxItem Tag="Approved" Content="Затверджені"/>
+                <ComboBoxItem Tag="HideApproved" Content="Прихов. затверджені"/>
+                <ComboBoxItem Tag="Untranslated" Content="Неперекладені"/>
+                <ComboBoxItem Tag="GroupByID" Content="Сортувати за ID"/>
+                <ComboBoxItem Tag="GroupByText" Content="Сортувати за оригіналом"/>
+                <ComboBoxItem Tag="GroupByTranslation" Content="Сортувати за перекладом"/>
+                <ComboBoxItem Tag="SortByOriginalWordCount" Content="Сорт. за к-стю слів оригіналу"/>
+                <ComboBoxItem Tag="SortByTranslationWordCount" Content="Сорт. за к-стю слів перекладу"/>
+                <ComboBoxItem Tag="SpellCheck" Content="Орфографія"/>
+                <ComboBoxItem Tag="Glossary" Content="Глосарій"/>
+                <ComboBoxItem Tag="TranslationMemory" Content="Пам'ять перекладів (ПП)"/>
+                <ComboBoxItem Tag="TranslationMemoryUnmodified" Content="ПП (лише неперекладені)"/>
+                <ComboBoxItem Tag="CommonErrors" Content="Часті помилки"/>
+            </ComboBox>
+            <Button x:Name="ToggleSearchResultsButton" Width="28" Margin="3,1,3,1" Click="ToggleSearchResultsButton_Click" IsEnabled="False" ToolTip="Показати/приховати результати пошуку">
+                <Path Data="{StaticResource SearchResultsIcon}" Fill="{DynamicResource TextForegroundBrush}" Width="20" Height="16" Stretch="Uniform"/>
+            </Button>
+            <Label x:Name="SearchStatusLabel" Margin="3,0,0,0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+        </StackPanel>
+        <!-- ═══ TabControl з вкладками файлів ═══ -->
+        <TabControl x:Name="FileTabs" DockPanel.Dock="Top" Background="Transparent" BorderThickness="0" BorderBrush="{DynamicResource BorderBrush}" 
+                    TabStripPlacement="Top" Padding="0" Margin="0" SelectionChanged="FileTabs_SelectionChanged" PreviewMouseWheel="FileTabs_PreviewMouseWheel">
+            <TabControl.Template>
+                <ControlTemplate TargetType="TabControl">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- Індикатор вліво -->
+                        <Grid x:Name="TabScrollLeftBtn" Grid.Column="0" Width="20" Visibility="Collapsed" IsHitTestVisible="False">
+                            <Border Background="{DynamicResource MenuBackgroundBrush}"/>
+                            <Border Width="6" HorizontalAlignment="Right">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="Transparent" Offset="0"/>
+                                        <GradientStop Color="#33000000" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+                            <TextBlock Text="◀" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                           Foreground="{DynamicResource TextForegroundBrush}" Opacity="0.5"/>
+                        </Grid>
+                        <!-- Скролер з вкладками -->
+                        <Border Grid.Column="1" Background="{DynamicResource MenuBackgroundBrush}" ClipToBounds="True">
+                            <ScrollViewer x:Name="TabStripScroller" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" 
+                                              Focusable="False" ScrollChanged="TabStripScroller_ScrollChanged">
+                                <TabPanel IsItemsHost="True" Background="Transparent" SizeChanged="TabPanel_SizeChanged"/>
+                            </ScrollViewer>
+                        </Border>
+                        <!-- Індикатор вправо -->
+                        <Grid x:Name="TabScrollRightBtn" Grid.Column="2" Width="20" Visibility="Collapsed" IsHitTestVisible="False">
+                            <Border Background="{DynamicResource MenuBackgroundBrush}"/>
+                            <Border Width="6" HorizontalAlignment="Left">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#33000000" Offset="0"/>
+                                        <GradientStop Color="Transparent" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+                            <TextBlock Text="▶" FontSize="10" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                           Foreground="{DynamicResource TextForegroundBrush}" Opacity="0.5"/>
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </TabControl.Template>
+            <TabControl.ItemContainerStyle>
+                <Style TargetType="TabItem" BasedOn="{StaticResource FileTabItemStyle}"/>
+            </TabControl.ItemContainerStyle>
+        </TabControl>
+        <!-- ═══ Основна сітка ═══ -->
+        <Grid Margin="2,2,2,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="FileTreeColumn" Width="0" MinWidth="0" MaxWidth="550"/>
+                <!-- Основний вміст -->
+                <ColumnDefinition Width="*"/>
+                <!-- Сплітер між основним вмістом і пошуком -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Панель результатів пошуку -->
+                <ColumnDefinition>
+                    <ColumnDefinition.Style>
+                        <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="255"/>
+                            <Setter Property="MinWidth" Value="255"/>
+                            <Setter Property="MaxWidth" Value="400"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=SearchResultsPanel, Path=Visibility}" Value="Collapsed">
+                                    <Setter Property="Width" Value="0"/>
+                                    <Setter Property="MinWidth" Value="0"/>
+                                    <Setter Property="MaxWidth" Value="0"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <!-- ═══ Панель файлів (Col 0) ═══ -->
+            <Border Grid.Column="0" x:Name="FileTreePanelGrid" Visibility="Collapsed" Background="{DynamicResource MenuBackgroundBrush}" 
+                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0" Padding="0,0,6,0">
+                <TreeView x:Name="FileTreeView" Background="{DynamicResource MenuBackgroundBrush}" BorderThickness="0" VirtualizingPanel.IsVirtualizing="False">
+                    <TreeView.ItemContainerStyle>
+                        <Style TargetType="TreeViewItem">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TreeViewItem">
+                                        <StackPanel>
+                                            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" 
+                                                    Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                                                <Grid Margin="0,0,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="16"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <ToggleButton x:Name="Expander" Grid.Column="0" ClickMode="Press" Visibility="Collapsed" Margin="0,0,0,0"
+                                                                  IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}">
+                                                        <ToggleButton.Style>
+                                                            <Style TargetType="ToggleButton">
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="ToggleButton">
+                                                                            <Border Width="12" Height="13" Background="Transparent" Padding="0">
+                                                                                <Path x:Name="ExpandPath" Fill="{DynamicResource TextForegroundBrush}" 
+                                                                                      Data="M 0 2 L 4 6 L 0 10 Z" Stretch="Uniform" HorizontalAlignment="Center" 
+                                                                                      VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <Trigger Property="IsChecked" Value="True">
+                                                                                    <Setter TargetName="ExpandPath" Property="Data" Value="M 2 0 L 6 4 L 10 0 Z"/>
+                                                                                </Trigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </ToggleButton.Style>
+                                                    </ToggleButton>
+                                                    <ContentPresenter x:Name="PART_Header" Grid.Column="1" ContentSource="Header" 
+                                                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="2,0,0,0"/>
+                                                </Grid>
+                                            </Border>
+                                            <ItemsPresenter x:Name="ItemsHost" Visibility="Collapsed"/>
+                                        </StackPanel>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsExpanded" Value="True">
+                                                <Setter TargetName="ItemsHost" Property="Visibility" Value="Visible"/>
+                                            </Trigger>
+                                            <DataTrigger Binding="{Binding HasItems, RelativeSource={RelativeSource Self}}" Value="True">
+                                                <Setter TargetName="Expander" Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="Transparent"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TreeView.ItemContainerStyle>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal" Margin="0,1,0,1">
+                                <StackPanel.ToolTip>
+                                    <ToolTip>
+                                        <TextBlock Text="{Binding FilePath}" TextWrapping="Wrap" MaxWidth="400"/>
+                                    </ToolTip>
+                                </StackPanel.ToolTip>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="ToolTipService.IsEnabled" Value="False"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Kind}" Value="File">
+                                                <Setter Property="ToolTipService.IsEnabled" Value="True"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <!-- Іконка -->
+                                <Path Width="16" Height="16" Margin="0,0,4,0" Stretch="Uniform" Fill="{DynamicResource TextForegroundBrush}">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
+                                            <Setter Property="Data" Value="{StaticResource FileIcon}"/>
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Kind}" Value="Folder">
+                                                    <Setter Property="Data" Value="{StaticResource FolderTreeFileIcon}"/>
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Path.Style>
+                                </Path>
+                                <!-- Текст з відступами -->
+                                <TextBlock Text="{Binding DisplayName}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource TextForegroundBrush}"/>
+                                            <Setter Property="Margin" Value="0,0,0,0"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Kind}" Value="File">
+                                                    <!--  Відступ для файлів  -->
+                                                    <Setter Property="Margin" Value="0,0,0,0"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource StatusApprovedIconForegroundBrush}"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding HasUnsavedChanges}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource FileTreeUnsavedChangesForegroundBrush}"/>
+                                                    <Setter Property="FontStyle" Value="Italic"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </Border>
+            <!-- GridSplitter — притиснутий праворуч у Col 0 -->
+            <GridSplitter Grid.Column="0" Width="4" HorizontalAlignment="Right" VerticalAlignment="Stretch" Background="{DynamicResource BorderBrush}" Panel.ZIndex="10"
+                          Visibility="{Binding ElementName=FileTreePanelGrid, Path=Visibility}" Margin="2,0,2,0"/>
+            <!-- ═══ Основний вміст (Col 1) ═══ -->
+            <Grid Grid.Column="1" x:Name="MainContentGrid" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <!-- Висота DataGrid -->
+                    <RowDefinition Height="*" MinHeight="150"/>
+                    <!-- Висота GridSplitter -->
+                    <RowDefinition Height="5"/>
+                    <!-- Висота панелі редагування -->
+                    <RowDefinition Height="80" MinHeight="30"/>
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="78"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid Grid.Row="0" x:Name="DataGridMain" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single" SelectionUnit="FullRow"
+                              HeadersVisibility="Column" SelectionChanged="DataGrid_SelectionChanged" HorizontalScrollBarVisibility="Hidden" 
+                              CanUserAddRows="False" CanUserSortColumns="False" CanUserReorderColumns="False" CanUserResizeRows="False" CanUserDeleteRows="False" 
+                              VerticalScrollBarVisibility="Auto" VirtualizingPanel.ScrollUnit="Pixel" VirtualizingPanel.VirtualizationMode="Recycling" RowHeight="20">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="№" Binding="{Binding DisplayIndex}" Width="Auto" CanUserResize="False"/>
+                            <DataGridTextColumn Header="ID" Binding="{Binding ID}" Width="100" MinWidth="40"/>
+                            <DataGridTextColumn Header="Оригінал" Binding="{Binding Text}" Width="152" MinWidth="40"/>
+                            <DataGridTextColumn Header="Переклад" Binding="{Binding Translation}" Width="*" CellStyle="{StaticResource ModifiedCellStyle}"/>
+                            <DataGridTemplateColumn Width="53" CanUserResize="False">
+                                <DataGridTemplateColumn.Header>
+                                    <Path Data="{StaticResource StatusIcon}" Fill="{DynamicResource TextForegroundBrush}" Margin="2,0,0,0" Width="18" Height="14" Stretch="Uniform"/>
+                                </DataGridTemplateColumn.Header>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2,0,0,0">
+                                            <!-- Іконка статусу -->
+                                            <Border Width="16" Height="16" Margin="1,0" Background="Transparent" Cursor="Hand" 
+                                                    MouseLeftButtonDown="StatusIcon_MouseLeftButtonDown">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="NeedsReview">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Approved">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <Path Data="{Binding StatusSymbol}" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center" IsHitTestVisible="False">
+                                                    <Path.Style>
+                                                        <Style TargetType="Path">
+                                                            <Setter Property="Fill" Value="{DynamicResource TextForegroundBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Status}" Value="NeedsReview">
+                                                                    <Setter Property="Fill" Value="{DynamicResource FileTreeUnsavedChangesForegroundBrush}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Approved">
+                                                                    <Setter Property="Fill" Value="{DynamicResource StatusApprovedIconForegroundBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Path.Style>
+                                                </Path>
+                                            </Border>
+                                            <!-- Іконка глосарію — видима незалежно від статусу -->
+                                            <Path Data="{StaticResource GlossaryIcon}" Width="14" Height="14" Stretch="Uniform" Margin="1,0" 
+                                                  Fill="{DynamicResource GlossaryIconForegroundBrush}" Opacity="0.75">
+                                                <Path.Style>
+                                                    <Style TargetType="Path">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding HasGlossaryMatch}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Path.Style>
+                                            </Path>
+                                            <!-- Іконка пам’яті перекладів — видима незалежно від статусу й глосарію -->
+                                            <Path Data="{StaticResource TranslationMemoryIcon}" Width="14" Height="14" Stretch="Uniform" Margin="1,0" 
+                                                  Fill="{DynamicResource TranslationMemoryIconForegroundBrush}" Opacity="0.75">
+                                                <Path.Style>
+                                                    <Style TargetType="Path">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding HasTranslationMemoryMatch}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Path.Style>
+                                            </Path>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                        <DataGrid.ContextMenu>
+                            <ContextMenu Opened="DataGridContextMenu_Opened">
+                                <MenuItem Header="Статус рядка">
+                                    <MenuItem Header="На вичитку" Click="StatusNeedsReview_Click"/>
+                                    <MenuItem Header="Затверджено" Click="StatusApproved_Click"/>
+                                    <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                                    <MenuItem Header="Скинути статус" Click="StatusClear_Click"/>
+                                </MenuItem>
+                                <MenuItem x:Name="AddToGlossaryMenuItem" Header="Додати у глосарій" Click="ContextMenu_AddToGlossary_Click"/>
+                                <MenuItem x:Name="GlossarySuggestionsMenuItem" Header="Пропозиції глосарію" Visibility="Collapsed"/>
+                                <MenuItem x:Name="TranslationMemorySuggestionsMenuItem" Header="Пам’ять перекладів" Visibility="Collapsed"/>
+                                <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                                <MenuItem Header="Копіювати ID" Click="CopyID_Click"/>
+                                <MenuItem Header="Копіювати оригінал" Click="CopyText_Click"/>
+                                <MenuItem Header="Копіювати переклад" Click="CopyTranslation_Click"/>
+                                <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                                <MenuItem x:Name="PasteToGridMenuItem" Header="Вставити" Click="PasteToGrid_Click"/>
+                                <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                                <MenuItem Header="Повернути оригінал" Click="RestoreOriginal_Click"/>
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNew}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource NewRowBg}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextForegroundBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.RowStyle>
+                    </DataGrid>
+                    <Border Grid.Row="1" x:Name="StatsPanel" MinHeight="25">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Рядків: "/>
+                                    <TextBlock x:Name="TotalRowsBlock" FontWeight="SemiBold" Margin="0,0,5,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Слів: "/>
+                                    <TextBlock x:Name="TotalWordsBlock" FontWeight="SemiBold" Margin="0,0,5,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Перекладено рядків: "/>
+                                    <TextBlock x:Name="TranslatedRowsBlock" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="TranslatedRowsPercentBlock" FontWeight="SemiBold" Margin="0,0,5,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Слів: "/>
+                                    <TextBlock x:Name="TranslatedWordsBlock" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="TranslatedWordsPercentBlock" FontWeight="SemiBold" Margin="0,0,5,0"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Затверджено слів: "/>
+                                    <TextBlock x:Name="ApprovedWordsBlock" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="ApprovedWordsPercentBlock" FontWeight="SemiBold" Margin="0,0,5,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="2" Background="{DynamicResource WindowBackgroundBrush}" BorderThickness="0" Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Border Background="{DynamicResource WindowBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                                <TextBox x:Name="OriginalTextBox" Grid.Row="0" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" 
+                                         Background="{DynamicResource DataGridBackgroundBrush}" BorderThickness="0" FontSize="12" FontWeight="SemiBold"
+                                         Foreground="{DynamicResource TextForegroundBrush}" HorizontalContentAlignment="Center"
+                                         Text="{Binding ElementName=DataGridMain, Path=SelectedItem.Text, Mode=OneWay}">
+                                    <TextBox.ContextMenu>
+                                        <ContextMenu Background="{DynamicResource MenuBackgroundBrush}" Foreground="{DynamicResource MenuForegroundBrush}" 
+                                                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="0" Opened="OriginalTextBoxContextMenu_Opened">
+                                            <ContextMenu.Resources>
+                                                <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}"/>
+                                            </ContextMenu.Resources>
+                                            <MenuItem Header="Копіювати" Command="ApplicationCommands.Copy"/>
+                                            <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                                            <MenuItem Header="Розташування тексту">
+                                                <MenuItem x:Name="AlignLeftMenuItem"   Header="Лівий край" Click="OriginalTextAlign_Click" Tag="Left"/>
+                                                <MenuItem x:Name="AlignCenterMenuItem" Header="Посередині" Click="OriginalTextAlign_Click" Tag="Center"/>
+                                                <MenuItem x:Name="AlignRightMenuItem"  Header="Правий край" Click="OriginalTextAlign_Click" Tag="Right"/>
+                                            </MenuItem>
+                                            <MenuItem Header="Розмір шрифту">
+                                                <MenuItem x:Name="FontSize8MenuItem"  Header="8" Click="OriginalFontSize_Click" Tag="8"/>
+                                                <MenuItem x:Name="FontSize9MenuItem"  Header="9" Click="OriginalFontSize_Click" Tag="9"/>
+                                                <MenuItem x:Name="FontSize10MenuItem" Header="10" Click="OriginalFontSize_Click" Tag="10"/>
+                                                <MenuItem x:Name="FontSize11MenuItem" Header="11" Click="OriginalFontSize_Click" Tag="11"/>
+                                                <MenuItem x:Name="FontSize12MenuItem" Header="12" Click="OriginalFontSize_Click" Tag="12"/>
+                                                <MenuItem x:Name="FontSize13MenuItem" Header="13" Click="OriginalFontSize_Click" Tag="13"/>
+                                                <MenuItem x:Name="FontSize14MenuItem" Header="14" Click="OriginalFontSize_Click" Tag="14"/>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </TextBox.ContextMenu>
+                                </TextBox>
+                            </Border>
+                            <Border Grid.Row="1" x:Name="ErrorsPanel" BorderThickness="0,0,0,0" Margin="0,0,0,-2" Padding="2,2" Visibility="Collapsed">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <StackPanel x:Name="SpellErrorPanel" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed" Margin="0,0,5,0">
+                                        <TextBlock VerticalAlignment="Center">
+                                            <Path Data="{StaticResource WordCheckIcon}" Fill="{DynamicResource SpellErrorIconBrush}" Width="16" Height="14" Stretch="Uniform"/>
+                                        </TextBlock>
+                                        <TextBlock x:Name="SpellErrorsBlock" VerticalAlignment="Center" Foreground="{DynamicResource SpellErrorTextBrush}"
+                                                   FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="4,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel x:Name="CommonErrorsPanel" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
+                                        <TextBlock VerticalAlignment="Center">
+                                            <Path Data="{StaticResource CommonErrorsIcon}" Fill="{DynamicResource CommonErrorIconBrush}" Width="16" Height="14" Stretch="Uniform"/>
+                                        </TextBlock>
+                                        <TextBlock x:Name="CommonErrorsBlock" VerticalAlignment="Center" Foreground="{DynamicResource CommonErrorTextBrush}"
+                                                   FontWeight="SemiBold" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Margin="4,0,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+                <GridSplitter Grid.Row="1" Height="4" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="{DynamicResource BorderBrush}"/>
+                <Border x:Name="EditTextBoxBorder" Grid.Row="2" Margin="0,2,0,0" BorderThickness="1">
+                    <ae:TextEditor x:Name="EditTextBox" FontSize="14" FontWeight="Bold" WordWrap="True" ShowLineNumbers="False" BorderThickness="0" Padding="2"
+                                   Background="{DynamicResource TextBoxBackgroundBrush}" Foreground="{DynamicResource TextForegroundBrush}"
+                                   HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto"
+                                   PreviewMouseRightButtonDown="EditTextBox_PreviewMouseRightButtonDown" PreviewKeyDown="EditTextBox_PreviewKeyDown">
+                        <!-- PreviewKeyDown у EditTextBox потрібен для UELT і ULT -->
+                        <ae:TextEditor.ContextMenu>
+                            <ContextMenu Background="{DynamicResource MenuBackgroundBrush}" Foreground="{DynamicResource MenuForegroundBrush}"
+                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="0" Opened="EditTextBoxContextMenu_Opened">
+                                <ContextMenu.Resources>
+                                    <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}"/>
+                                </ContextMenu.Resources>
+                                <MenuItem Header="Вирізати" Command="ApplicationCommands.Cut"/>
+                                <MenuItem Header="Копіювати" Command="ApplicationCommands.Copy"/>
+                                <MenuItem Header="Вставити" Command="ApplicationCommands.Paste"/>
+                                <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                                <MenuItem x:Name="AddToGlossaryMenuItemEditBox" Header="Додати до глосарію..." Click="AddToGlossary_Click"/>
+                                <MenuItem x:Name="AddToSpellIgnoreMenuItem" Header="Додати до виключень" Click="AddToSpellIgnore_Click" Visibility="Collapsed"/>
+                                <Separator Style="{StaticResource ThinMenuSeparator}"/>
+                                <MenuItem Header="Розмір шрифту">
+                                    <MenuItem x:Name="EditFontSize8MenuItem"  Header="8" Click="EditFontSize_Click" Tag="8"/>
+                                    <MenuItem x:Name="EditFontSize9MenuItem"  Header="9" Click="EditFontSize_Click" Tag="9"/>
+                                    <MenuItem x:Name="EditFontSize10MenuItem" Header="10" Click="EditFontSize_Click" Tag="10"/>
+                                    <MenuItem x:Name="EditFontSize11MenuItem" Header="11" Click="EditFontSize_Click" Tag="11"/>
+                                    <MenuItem x:Name="EditFontSize12MenuItem" Header="12" Click="EditFontSize_Click" Tag="12"/>
+                                    <MenuItem x:Name="EditFontSize13MenuItem" Header="13" Click="EditFontSize_Click" Tag="13"/>
+                                    <MenuItem x:Name="EditFontSize14MenuItem" Header="14" Click="EditFontSize_Click" Tag="14"/>
+                                </MenuItem>
+                            </ContextMenu>
+                        </ae:TextEditor.ContextMenu>
+                    </ae:TextEditor>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource Self}}" Value="True">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource DataGridSelectionBrush}"/>
+                                </DataTrigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+            </Grid>
+            <!-- Welcome Panel (Col 1) -->
+            <Border Grid.Column="1" x:Name="WelcomePanel" Background="{DynamicResource WindowBackgroundBrush}" Visibility="Visible" Margin="2,2,2,2" BorderThickness="1">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Opacity="0.5" HorizontalAlignment="Center">
+                        <Path Data="{StaticResource FolderIcon}" Fill="{DynamicResource TextForegroundBrush}" Width="80" Height="70" Stretch="Uniform"/>
+                    </TextBlock>
+                    <TextBlock Text="Перетягніть файл(-и) сюди або натисніть Ctrl+O" FontSize="14" Foreground="{DynamicResource TextForegroundBrush}" TextAlignment="Center"/>
+                    <TextBlock Text="Підтримувані формати: .locres, .uasset, .umap" FontSize="12" Foreground="{DynamicResource TextForegroundBrush}" Opacity="0.6" 
+                               Margin="0,5,0,0" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Ctrl+Shift+O — відкрити теку з файлами" FontSize="11" Foreground="{DynamicResource TextForegroundBrush}" Opacity="0.6" 
+                               Margin="0,3,0,0" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+            <!-- GridSplitter між основною сіткою і панеллю результатів (Col 2) -->
+            <GridSplitter Grid.Column="2" Margin="2,0,2,0" Width="4" HorizontalAlignment="Center" VerticalAlignment="Stretch" Background="{DynamicResource BorderBrush}"
+                          Visibility="{Binding ElementName=SearchResultsPanel, Path=Visibility}"/>
+            <!-- Панель результатів пошуку (Col 3) -->
+            <Border Grid.Column="3" x:Name="SearchResultsPanel" Background="{DynamicResource WindowBackgroundBrush}" Visibility="Collapsed">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <!-- Заголовок панелі результатів -->
+                    <Grid x:Name="FilterPanel" Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="0.6*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="FilterBothButton" Grid.Column="0" Content="В обох" Height="21" Margin="0,0,5,0" Click="FilterBothButton_Click" Padding="0"/>
+                        <Button x:Name="FilterOriginalButton" Grid.Column="1" Content="Оригінал" Height="21" Margin="0,0,5,0" Click="FilterOriginalButton_Click" Padding="0"/>
+                        <Button x:Name="FilterTranslationButton" Grid.Column="2" Content="Переклад" Height="21" Margin="0,0,5,0" Click="FilterTranslationButton_Click" Padding="0"/>
+                        <Button x:Name="FilterResetButton" Grid.Column="3" Content="Усі" Height="21" Click="FilterResetButton_Click" Padding="0"/>
+                    </Grid>
+                    <!-- Список результатів -->
+                    <ListBox x:Name="SearchResultsList" Margin="0,2,0,0" Grid.Row="1" SelectionChanged="SearchResultsList_SelectionChanged" 
+                             MouseLeftButtonUp="SearchResultsList_MouseLeftButtonUp" Background="{DynamicResource DataGridBackgroundBrush}" 
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" 
+                             VirtualizingPanel.CacheLength="3" VirtualizingPanel.CacheLengthUnit="Page" VirtualizingPanel.ScrollUnit="Pixel">
+                        <ListBox.Template>
+                            <ControlTemplate TargetType="ListBox">
+                                <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                                    <ScrollViewer Focusable="False" Padding="{TemplateBinding Padding}">
+                                        <ScrollViewer.Template>
+                                            <ControlTemplate TargetType="ScrollViewer">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="*"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+                                                    <ScrollContentPresenter Grid.Column="0" Grid.Row="0" CanContentScroll="{TemplateBinding CanContentScroll}"/>
+                                                    <ScrollBar x:Name="PART_VerticalScrollBar" Grid.Column="1" Grid.Row="0" Orientation="Vertical" 
+                                                               Maximum="{TemplateBinding ScrollableHeight}" ViewportSize="{TemplateBinding ViewportHeight}" 
+                                                               Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                                               Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </ScrollViewer.Template>
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </ControlTemplate>
+                        </ListBox.Template>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ListBoxSearchResultSelection}"/>
+                                                </Trigger>
+                                                <MultiTrigger>
+                                                    <MultiTrigger.Conditions>
+                                                        <Condition Property="IsSelected" Value="True"/>
+                                                        <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                                    </MultiTrigger.Conditions>
+                                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ListBoxSearchResultSelection}"/>
+                                                </MultiTrigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ListBoxSearchResultNotSelecting}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,0.5">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <!-- Номер і тип стовпчика -->
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                            <TextBlock Text="№" Margin="2,0,2,0" Opacity="0.7"/>
+                                            <TextBlock Text="{Binding DisplayNumber}" FontWeight="SemiBold" Margin="2,0,0,0"/>
+                                            <TextBlock Text="{Binding ColumnType}" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                        <!-- ID -->
+                                        <TextBlock Grid.Row="1" Text="{Binding Term}" Margin="2,2,0,0" Opacity="0.8" FontStyle="Italic" 
+                                                   Visibility="{Binding ShowTerm, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        <!-- Текст з підсвічуванням -->
+                                        <TextBlock Grid.Row="2" Margin="2,3,0,2" TextWrapping="Wrap">
+                                            <local:TextBlockHighlightHelper.Highlight>
+                                                <MultiBinding Converter="{StaticResource HighlightDataConverter}">
+                                                    <Binding Path="Preview"/>
+                                                    <Binding Path="SearchQuery"/>
+                                                    <Binding Path="Comparison"/>
+                                                </MultiBinding>
+                                            </local:TextBlockHighlightHelper.Highlight>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+            <!-- Status Block (Col 0..4) -->
+            <Border Grid.Column="0" Grid.ColumnSpan="4" x:Name="StatusBlock" Background="Transparent" Visibility="Collapsed" Panel.ZIndex="100">
+                <StackPanel Width="300" Height="150" Background="{DynamicResource DataGridBackgroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel.Effect>
+                        <DropShadowEffect Color="#88000000" Direction="270" ShadowDepth="5" BlurRadius="10" Opacity="0.5"/>
+                    </StackPanel.Effect>
+                    <TextBlock HorizontalAlignment="Center" Margin="0,20">
+                        <Path Data="{StaticResource HourGlassIcon}" Fill="{DynamicResource TextForegroundBrush}" Width="60" Height="50" Stretch="Uniform"/>
+                    </TextBlock>
+                    <TextBlock x:Name="StatusTitle" Text="Обробка..." FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>

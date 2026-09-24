@@ -1,0 +1,84 @@
+﻿<Window x:Class="UELT.LocresEntryEditorWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        Title="Редактор рядка" SizeToContent="Height" Width="500" Background="{DynamicResource WindowBackgroundBrush}" WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <!-- Область імен -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="50"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Область імен (Namespace)" Grid.Column="0"/>
+                <TextBox x:Name="txtNameSpace" Grid.Column="0" Margin="0,20,0,0" VerticalContentAlignment="Center"/>
+                <TextBlock Text="Хеш області імен" Grid.Column="1" Margin="20,0,0,0" Grid.ColumnSpan="2"/>
+                <TextBox x:Name="txtNameSpaceHash" Grid.Column="1" Margin="20,20,0,0" VerticalContentAlignment="Center"/>
+                <Button x:Name="btnGenNameSpace" Grid.Column="2" Content="Gen" Margin="5,20,0,0" Click="BtnGenNameSpace_Click"/>
+            </Grid>
+        </StackPanel>
+        <!-- ID (Key) -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="50"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="ID"/>
+                <TextBox x:Name="txtKey" Grid.Column="0"  Margin="0,20,0,0" VerticalContentAlignment="Center"/>
+                <TextBlock Text="Хеш ID" Grid.Column="1" Margin="20,0,0,0"/>
+                <TextBox x:Name="txtKeyHash" Grid.Column="1" Margin="20,20,0,0" VerticalContentAlignment="Center"/>
+                <Button x:Name="btnGenKey" Grid.Column="2" Content="Gen" Margin="5,20,0,0" Click="BtnGenKey_Click"/>
+            </Grid>
+        </StackPanel>
+        <!-- Текст (Value) -->
+        <StackPanel Grid.Row="2" Margin="0,0,0,10">
+            <TextBlock Text="Текст" Margin="0,0,0,5"/>
+            <TextBox x:Name="txtValue" Height="80" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" VerticalContentAlignment="Top"/>
+        </StackPanel>
+        <Grid Grid.Row="3" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <!-- Ліва колонка -->
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Хеш тексту" Margin="0,0,0,5"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="txtValueHash" Grid.Column="0"/>
+                    <Button x:Name="btnGenValue" Grid.Column="1" Content="Gen" Margin="5,0,0,0" Click="BtnGenValue_Click"/>
+                </Grid>
+            </StackPanel>
+            <!-- Права колонка -->
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="ExternID (лише для locres v4)" Margin="0,0,0,5"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="txtExternID" Grid.Column="0" VerticalContentAlignment="Center" IsEnabled="False"/>
+                    <Button x:Name="btnGenExternID" Grid.Column="1" Content="Gen" Margin="5,0,0,0" Click="BtnGenExternID_Click" IsEnabled="False"/>
+                </Grid>
+            </StackPanel>
+        </Grid>
+        <!-- Кнопки -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+            <Button x:Name="btnApply" Content="Застосувати" Width="85" MinHeight="25" Click="BtnApply_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

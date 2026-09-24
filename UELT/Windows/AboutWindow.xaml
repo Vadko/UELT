@@ -1,0 +1,286 @@
+﻿<Window x:Class="UELT.AboutWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Про програму" Width="615" Height="414" MinWidth="615" MinHeight="414" WindowStartupLocation="CenterOwner" ResizeMode="CanResizeWithGrip" ShowInTaskbar="False" 
+        Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Margin="5,0,5,5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!-- Верхній рядок з назвою та статусом активації -->
+        <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,5">
+            <TextBlock Text="UELT" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource TextForegroundBrush}"/>
+            <TextBlock x:Name="TxtVersion" FontSize="12" HorizontalAlignment="Center" Foreground="{DynamicResource TextForegroundBrush}" Opacity="0.7"/>
+            <Border x:Name="ActivationBadge" CornerRadius="4" HorizontalAlignment="Center" Padding="8,2">
+                <TextBlock x:Name="TxtActivationStatus" FontSize="11"/>
+            </Border>
+        </StackPanel>
+        <!-- Вкладки -->
+        <TabControl Grid.Row="1">
+            <TabItem Header="Інформація">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
+                    <StackPanel>
+                        <RichTextBox IsReadOnly="True" BorderThickness="0" Margin="-5,-3,-5,0" Foreground="{DynamicResource TextForegroundBrush}" 
+                                     IsHitTestVisible="False" Background="Transparent">
+                            <FlowDocument Background="Transparent">
+                                <Paragraph LineHeight="20">
+                                    <Run FontWeight="SemiBold">UELT</Run> — комплексний інструмент для редагування файлів локалізації
+                                    <Run FontWeight="SemiBold">Unreal Engine 4-5.</Run>
+                                </Paragraph>
+                            </FlowDocument>
+                        </RichTextBox>
+                        <RichTextBox IsReadOnly="True" BorderThickness="0" Margin="-5,8,-5,0" Foreground="{DynamicResource TextForegroundBrush}" 
+                                     IsHitTestVisible="False" Background="Transparent">
+                            <FlowDocument Background="Transparent">
+                                <Paragraph TextIndent="15" LineHeight="20">
+                                    <Run>Підтримує роботу у вкладках з опціональним деревом файлів, створення</Run>
+                                    <Run FontWeight="SemiBold">locres</Run> з нуля, формат
+                                    <Run FontWeight="SemiBold">locres v4 (Stellar Blade)</Run> та зашифрований
+                                    <Run FontWeight="SemiBold">locres v3 (Code Vein 2)</Run>,
+                                    <Run FontWeight="SemiBold">20</Run> структур
+                                    <Run FontWeight="SemiBold">uasset/umap</Run>, парсинг однієї мови з багатомовних
+                                    <Run FontWeight="SemiBold">uasset</Run>, експорт та імпорт
+                                    <Run FontWeight="SemiBold">CSV</Run> і
+                                    <Run FontWeight="SemiBold">TXT</Run> у кількох варіантах, пакетний імпорт з
+                                    <Run FontWeight="SemiBold">locres, uasset</Run> і
+                                    <Run FontWeight="SemiBold">umap</Run>, пакетний імпорт хешів тексту з
+                                    <Run FontWeight="SemiBold">locres</Run> і
+                                    <Run FontWeight="SemiBold">TXT</Run>, пакетне додавання й видалення рядків з
+                                    <Run FontWeight="SemiBold">locres</Run>, об’єднання кількох
+                                    <Run FontWeight="SemiBold">locres</Run>, порівняння двох
+                                    <Run FontWeight="SemiBold">locres</Run>, глобальний пошук і заміну, сортування тексту, статуси та фільтрацію рядків, підрахунок статистики, перевірку орфографії та частих помилок, глосарій, множинні пам’яті перекладу, скасування й повтор дій, вивід активності у
+                                    <Run FontWeight="SemiBold">Discord</Run>. Збережена сумісність експортованих
+                                    <Run FontWeight="SemiBold">CSV</Run> і
+                                    <Run FontWeight="SemiBold">TXT</Run>
+                                    <Run>з попередніх програм.</Run>
+                                </Paragraph>
+                            </FlowDocument>
+                        </RichTextBox>
+                        <Separator Margin="0,10" Background="{DynamicResource BorderBrush}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="73"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Автор:" FontWeight="SemiBold" Foreground="{DynamicResource TextForegroundBrush}" Margin="0,2"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="TxtAuthor" Foreground="{DynamicResource TextForegroundBrush}" Margin="0,2"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Платформа:" FontWeight="SemiBold" Foreground="{DynamicResource TextForegroundBrush}" Margin="0,2"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="TxtFramework" Foreground="{DynamicResource TextForegroundBrush}" Margin="0,2"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Підтримка:" FontWeight="SemiBold" Foreground="{DynamicResource TextForegroundBrush}" Margin="0,2"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="TxtSoftware" Foreground="{DynamicResource TextForegroundBrush}" Margin="0,2"/>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Ліцензії">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <ComboBox Grid.Row="0" x:Name="CmbLicense" Margin="4,4,4,2" SelectionChanged="CmbLicense_SelectionChanged"/>
+                    <TextBox Grid.Row="1" x:Name="TxtLicense" Margin="4,2,4,4" IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                             BorderThickness="0" Background="Transparent" Foreground="{DynamicResource TextForegroundBrush}" FontFamily="Consolas" FontSize="11">
+                        <TextBox.ContextMenu>
+                            <ContextMenu Background="{DynamicResource MenuBackgroundBrush}" Foreground="{DynamicResource MenuForegroundBrush}" 
+                                         BorderBrush="{DynamicResource BorderBrush}" 
+                             BorderThickness="1" Padding="0">
+                                <ContextMenu.Resources>
+                                    <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}"/>
+                                </ContextMenu.Resources>
+                                <MenuItem Header="Копіювати" Command="ApplicationCommands.Copy"/>
+                            </ContextMenu>
+                        </TextBox.ContextMenu>
+                    </TextBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Історія змін">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
+                    <ItemsControl x:Name="LstChangelog">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="4,6,4,2">
+                                    <!-- Версія + дата -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                        <TextBlock Text="{Binding Version}" FontWeight="Bold" FontSize="13" Foreground="{DynamicResource TextForegroundBrush}"/>
+                                        <TextBlock Text="{Binding Date}" FontSize="11" Foreground="{DynamicResource TextForegroundBrush}" Opacity="0.5" Margin="8,1,0,0" 
+                                                   VerticalAlignment="Bottom"/>
+                                    </StackPanel>
+                                    <!-- Список змін -->
+                                    <ItemsControl ItemsSource="{Binding Changes}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,1">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="—" Foreground="{DynamicResource TextForegroundBrush}" Opacity="0.5" Margin="4,0,6,0"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding}" TextWrapping="Wrap" Foreground="{DynamicResource TextForegroundBrush}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Separator Margin="0,8,0,0" Background="{DynamicResource BorderBrush}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Залежності">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Background="{DynamicResource MenuBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+                        <Grid Margin="4,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.5*"/>
+                                <ColumnDefinition Width="0.7*"/>
+                                <ColumnDefinition Width="3*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Бібліотека" FontWeight="SemiBold" Foreground="{DynamicResource TextForegroundBrush}" Margin="4,0"/>
+                            <TextBlock Grid.Column="1" Text="Ліцензія" FontWeight="SemiBold" Foreground="{DynamicResource TextForegroundBrush}" Margin="4,0"/>
+                            <TextBlock Grid.Column="2" Text="Призначення" FontWeight="SemiBold" Foreground="{DynamicResource TextForegroundBrush}" Margin="4,0"/>
+                        </Grid>
+                    </Border>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="LstDependencies">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Background="Transparent">
+                                        <Grid Margin="4,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="0.7*"/>
+                                                <ColumnDefinition Width="3*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" Foreground="{DynamicResource TextForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="4,0"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding License}" Foreground="{DynamicResource TextForegroundBrush}" Margin="4,0"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Purpose}" Foreground="{DynamicResource TextForegroundBrush}" TextWrapping="Wrap" Margin="4,0"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Документація">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="154"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
+                        <ListBox x:Name="LstDocSections" BorderThickness="0" Background="Transparent" SelectionChanged="LstDocSections_SelectionChanged"
+                                 Foreground="{DynamicResource TextForegroundBrush}">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="3,4"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource TextForegroundBrush}"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource DataGridSelectionBrush}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource DataGridSelectionForegroundBrush}"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ButtonHoverBrush}"/>
+                                                    </Trigger>
+                                                    <!-- Якщо одночасно selected + hover — зберігаємо синій фон -->
+                                                    <MultiTrigger>
+                                                        <MultiTrigger.Conditions>
+                                                            <Condition Property="IsSelected" Value="True"/>
+                                                            <Condition Property="IsMouseOver" Value="True"/>
+                                                        </MultiTrigger.Conditions>
+                                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource DataGridSelectionBrush}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource DataGridSelectionForegroundBrush}"/>
+                                                    </MultiTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+                    </Border>
+                    <RichTextBox Grid.Column="1" x:Name="TxtDocContent" Margin="6,4,4,4" IsReadOnly="True" BorderThickness="0" Background="Transparent" 
+                                 Foreground="{DynamicResource TextForegroundBrush}" FontFamily="Segoe UI" FontSize="12" VerticalScrollBarVisibility="Auto" 
+                                 IsDocumentEnabled="True">
+                        <RichTextBox.Resources>
+                            <Style TargetType="Paragraph">
+                                <Setter Property="Margin" Value="0"/>
+                            </Style>
+                            <Style TargetType="Hyperlink">
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Foreground" Value="{DynamicResource HyperlinkForegroundBrush}"/>
+                                <Setter Property="TextDecorations" Value="Underline"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource HyperlinkForegroundBrush}"/>
+                                        <Setter Property="Cursor" Value="Hand"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </RichTextBox.Resources>
+                        <RichTextBox.ContextMenu>
+                            <ContextMenu Background="{DynamicResource MenuBackgroundBrush}" Foreground="{DynamicResource MenuForegroundBrush}" 
+                                         BorderBrush="{DynamicResource BorderBrush}" 
+                             BorderThickness="1" Padding="0">
+                                <ContextMenu.Resources>
+                                    <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}"/>
+                                </ContextMenu.Resources>
+                                <MenuItem Header="Копіювати" Command="ApplicationCommands.Copy"/>
+                            </ContextMenu>
+                        </RichTextBox.ContextMenu>
+                    </RichTextBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Підтримати">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0">
+                        <TextBlock TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource TextForegroundBrush}" 
+                                   Margin="0,0,0,5" Text="Якщо програма виявилась корисною, можете підтримати розробника донатом. Дякую!"/>
+                        <!-- QR-код -->
+                        <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" HorizontalAlignment="Center" Padding="8" 
+                                Background="{DynamicResource MenuBackgroundBrush}">
+                            <Image x:Name="ImgQrCode" Source="pack://application:,,,/donate_qr.png" Width="160" Height="160" 
+                                   RenderOptions.BitmapScalingMode="HighQuality" ToolTip="Скануйте для переказу"/>
+                        </Border>
+                        <!-- Підпис під QR -->
+                        <TextBlock x:Name="TxtQrHint" HorizontalAlignment="Center" Foreground="{DynamicResource TextForegroundBrush}" Opacity="0.6" FontSize="11" 
+                                   Margin="0,2,0,5" Text="Monobank · UAH"/>
+                        <!-- Кнопка-посилання -->
+                        <Grid HorizontalAlignment="Stretch" Width="Auto">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Пустий лівий стовпчик для балансу -->
+                            <Border Grid.Column="0"/>
+                            <!-- Кнопка донату по центру -->
+                            <StackPanel Grid.Column="1">
+                                <Button x:Name="BtnDonateLink" Padding="10,4" FontSize="13" Click="BtnDonateLink_Click" Content="Перейти до банки"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

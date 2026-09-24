@@ -1,0 +1,38 @@
+﻿<Window x:Class="UELT.Hikaro.GlobalStatsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:local="clr-namespace:UELT.Hikaro" Title="Загальна статистика" Width="680" Height="220" 
+        MinWidth="520" MinHeight="180" WindowStartupLocation="CenterOwner" ResizeMode="CanResizeWithGrip" 
+        Background="{DynamicResource WindowBackgroundBrush}" Closed="Window_Closed">
+    <Window.Resources>
+        <Style x:Key="CenteredCellText" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="4,0"/>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock x:Name="SummaryText" Grid.Row="0" Text="Підрахунок..." FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap" Margin="5,0,5,5" 
+                   Foreground="{DynamicResource TextForegroundBrush}"/>
+
+        <DataGrid x:Name="StatsGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" CanUserDeleteRows="False" CanUserReorderColumns="False"
+                  CanUserResizeRows="False" CanUserResizeColumns="False" HeadersVisibility="Column" GridLinesVisibility="All" Margin="5,0,5,0"
+                  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Файл" Binding="{Binding FileName}" Width="*"/>
+                <DataGridTextColumn Header=" Рядків " Binding="{Binding RowsText}" Width="Auto" ElementStyle="{StaticResource CenteredCellText}"/>
+                <DataGridTextColumn Header=" Слів " Binding="{Binding WordsText}" Width="Auto" ElementStyle="{StaticResource CenteredCellText}"/>
+                <DataGridTextColumn Header=" Перекл. рядків " Binding="{Binding TranslatedRowsText}" Width="Auto" ElementStyle="{StaticResource CenteredCellText}"/>
+                <DataGridTextColumn Header=" Перекл. слів " Binding="{Binding TranslatedWordsText}" Width="Auto" ElementStyle="{StaticResource CenteredCellText}"/>
+                <DataGridTextColumn Header=" Затв. рядків " Binding="{Binding ApprovedRowsText}" Width="Auto" ElementStyle="{StaticResource CenteredCellText}"/>
+                <DataGridTextColumn Header=" Затв. слів " Binding="{Binding ApprovedWordsText}" Width="Auto" ElementStyle="{StaticResource CenteredCellText}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,5">
+            <Button x:Name="RefreshButton" Content="Оновити" Width="65" Height="25" Click="RefreshButton_Click" Margin="0,0,10,0"/>
+            <Button x:Name="CopyButton" Content="Скопіювати всю статистику" Width="170" Height="25" Click="CopyButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,25 @@
+﻿<Window x:Class="UELT.Hikaro.GlobalFilterWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Глобальне фільтрування" SizeToContent="Height" Width="290" Background="{DynamicResource WindowBackgroundBrush}" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <StackPanel Margin="5">
+        <TextBlock Text="Застосувати до всіх відкритих вкладок:" Margin="0,0,0,8" TextWrapping="Wrap"/>
+        <ListBox x:Name="FilterListBox" Height="280">
+            <ListBoxItem Tag="None" Content="Усі рядки" IsSelected="True"/>
+            <ListBoxItem Tag="Modified" Content="Лише змінені"/>
+            <ListBoxItem Tag="NeedsReview" Content="Лише зі статусом «На вичитку»"/>
+            <ListBoxItem Tag="Approved" Content="Лише зі статусом «Затверджені»"/>
+            <ListBoxItem Tag="HideApproved" Content="Приховати рядки зі статусом «Затверджені»"/>
+            <ListBoxItem Tag="Untranslated" Content="Лише неперекладені"/>
+            <ListBoxItem Tag="GroupByID" Content="Сортування за ID"/>
+            <ListBoxItem Tag="GroupByText" Content="Сортування тексту оригіналу"/>
+            <ListBoxItem Tag="GroupByTranslation" Content="Сортування тексту перекладу"/>
+            <ListBoxItem Tag="SortByOriginalWordCount" Content="Сортування за кількістю слів оригіналу"/>
+            <ListBoxItem Tag="SortByTranslationWordCount" Content="Сортування за кількістю слів перекладу"/>
+            <ListBoxItem Tag="SpellCheck" Content="Орфографія"/>
+            <ListBoxItem Tag="Glossary" Content="Глосарій"/>
+            <ListBoxItem Tag="TranslationMemory" Content="Пам'ять перекладів"/>
+            <ListBoxItem Tag="TranslationMemoryUnmodified" Content="Пам’ять перекладів (лише неперекладені)"/>
+            <ListBoxItem Tag="CommonErrors" Content="Часті помилки"/>
+        </ListBox>
+        <Button Content="Застосувати" Click="Apply_Click" MinHeight="25" Width="90" Margin="0,5,0,0"/>
+    </StackPanel>
+</Window>

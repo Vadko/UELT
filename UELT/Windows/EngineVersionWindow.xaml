@@ -1,0 +1,93 @@
+<Window x:Class="UELT.EngineVersionWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        Title="Відкриття uasset/umap" Width="375" SizeToContent="Height" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" AllowDrop="True" 
+        DragOver="Window_DragOver" Drop="Window_Drop" DragLeave="Window_DragLeave">
+    <Grid>
+        <Grid Margin="5" x:Name="MainContent">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="1" Margin="0,0,0,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Версія рушія:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <ComboBox x:Name="VersionComboBox" Grid.Column="1" IsEditable="False" SelectedValue="27" SelectedValuePath="Tag" MinHeight="25" MaxDropDownHeight="300">
+                    <ComboBoxItem Content="UE 4.0" Tag="0"/>
+                    <ComboBoxItem Content="UE 4.1" Tag="1"/>
+                    <ComboBoxItem Content="UE 4.2" Tag="2"/>
+                    <ComboBoxItem Content="UE 4.3" Tag="3"/>
+                    <ComboBoxItem Content="UE 4.4" Tag="4"/>
+                    <ComboBoxItem Content="UE 4.5" Tag="5"/>
+                    <ComboBoxItem Content="UE 4.6" Tag="6"/>
+                    <ComboBoxItem Content="UE 4.7" Tag="7"/>
+                    <ComboBoxItem Content="UE 4.8" Tag="8"/>
+                    <ComboBoxItem Content="UE 4.9" Tag="9"/>
+                    <ComboBoxItem Content="UE 4.10" Tag="10"/>
+                    <ComboBoxItem Content="UE 4.11" Tag="11"/>
+                    <ComboBoxItem Content="UE 4.12" Tag="12"/>
+                    <ComboBoxItem Content="UE 4.13" Tag="13"/>
+                    <ComboBoxItem Content="UE 4.14" Tag="14"/>
+                    <ComboBoxItem Content="UE 4.15" Tag="15"/>
+                    <ComboBoxItem Content="UE 4.16" Tag="16"/>
+                    <ComboBoxItem Content="UE 4.17" Tag="17"/>
+                    <ComboBoxItem Content="UE 4.18" Tag="18"/>
+                    <ComboBoxItem Content="UE 4.19" Tag="19"/>
+                    <ComboBoxItem Content="UE 4.20" Tag="20"/>
+                    <ComboBoxItem Content="UE 4.21" Tag="21"/>
+                    <ComboBoxItem Content="UE 4.22" Tag="22"/>
+                    <ComboBoxItem Content="UE 4.23" Tag="23"/>
+                    <ComboBoxItem Content="UE 4.24" Tag="24"/>
+                    <ComboBoxItem Content="UE 4.25" Tag="25"/>
+                    <ComboBoxItem Content="UE 4.26" Tag="26"/>
+                    <ComboBoxItem Content="UE 4.27" Tag="27"/>
+                    <ComboBoxItem Content="UE 5.0 Early Access" Tag="500EA"/>
+                    <ComboBoxItem Content="UE 5.0" Tag="500"/>
+                    <ComboBoxItem Content="UE 5.1" Tag="501"/>
+                    <ComboBoxItem Content="UE 5.2" Tag="502"/>
+                    <ComboBoxItem Content="UE 5.3" Tag="503"/>
+                    <ComboBoxItem Content="UE 5.4" Tag="504"/>
+                    <ComboBoxItem Content="UE 5.5" Tag="505"/>
+                    <ComboBoxItem Content="UE 5.6" Tag="506"/>
+                    <ComboBoxItem Content="UE 5.7" Tag="507"/>
+                    <ComboBoxItem Content="UE 5.8 (поки немає підтримки)" Tag="508"/>
+                </ComboBox>
+            </Grid>
+            <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,0,0,5">
+                <CheckBox x:Name="UseMappingsCheckBox" Grid.Row="2" Content="Використовувати usmap/jmap/jmap.gz для десеріалізації" IsChecked="False"
+                          Checked="UseMappingsCheckBox_Checked" Unchecked="UseMappingsCheckBox_Unchecked"/>
+                <TextBlock Grid.Row="2" Text="Виберіть або перетягніть файл у вікно" FontSize="12" HorizontalAlignment="Center" Opacity="0.6"/>
+                <TextBlock Grid.Row="2" Text="Ручний вибір має пріоритет над випадаючим меню" FontSize="12" HorizontalAlignment="Center" Opacity="0.6"/>
+            </StackPanel>
+            <!-- Рядок "Огляд" — пріоритет якщо заповнено -->
+            <Grid Grid.Row="3" Margin="0,0,0,5" IsEnabled="{Binding ElementName=UseMappingsCheckBox, Path=IsChecked}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="MappingsPathTextBox" Grid.Column="0" MinHeight="25" Margin="0,0,10,0" IsReadOnly="True" Background="{DynamicResource TextBoxBackgroundBrush}"/>
+                <Button x:Name="BrowseMappingsButton" Grid.Column="1" Content="..." MinHeight="25" Width="25" Click="BrowseMappingsButton_Click"/>
+            </Grid>
+            <!-- ComboBox нещодавніх mappings — використовується якщо поле "Огляд" порожнє -->
+            <ComboBox x:Name="RecentMappingsComboBox" Grid.Row="4" MinHeight="25" IsEnabled="{Binding ElementName=UseMappingsCheckBox, Path=IsChecked}"/>
+            <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                <Button x:Name="OkButton" Content="Відкрити" Width="70" MinHeight="25" Click="OkButton_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Оверлей Drag & Drop (зелена рамка) -->
+        <Border x:Name="DragOverlay" Background="Transparent" Visibility="Collapsed" IsHitTestVisible="False">
+            <Border BorderBrush="#4CAF50" BorderThickness="3" CornerRadius="6" Margin="5" Background="#104CAF50">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="📁" FontSize="42" HorizontalAlignment="Center" Margin="0,0,0,8" Foreground="{DynamicResource TextForegroundBrush}"/>
+                    <TextBlock Text="Перетягніть usmap/jmap файл" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextForegroundBrush}"/>
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,202 @@
+﻿<Window x:Class="UELT.GlobalSearchWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:UELT.Hikaro" Title="Глобальний пошук" Width="640" Height="450" MinWidth="600" MinHeight="320" WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="True" Background="{DynamicResource WindowBackgroundBrush}" KeyDown="Window_KeyDown" ResizeMode="CanResizeWithGrip">
+    <Window.Resources>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <local:HighlightDataConverter x:Key="HighlightDataConverter"/>
+        <local:SpellCheckHighlightDataConverter x:Key="SpellCheckHighlightDataConverter"/>
+    </Window.Resources>
+    <DockPanel Margin="5">
+        <!-- Рядок пошуку -->
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <!-- Перемикач режиму -->
+            <ToggleButton x:Name="SearchModeToggle" Grid.Column="0" Content="Текст" Width="46" Height="25" Margin="0,0,10,0" Padding="0,0,0,0"
+                          Click="SearchModeToggle_Click"/>
+            <ComboBox x:Name="SearchComboBox" Grid.Column="1" IsEditable="True" IsTextSearchEnabled="False" Background="{DynamicResource TextBoxBackgroundBrush}"
+                      BorderBrush="{DynamicResource BorderBrush}" KeyDown="SearchComboBox_KeyDown" Height="25" Margin="0,0,10,0" DropDownOpened="SearchComboBox_DropDownOpened">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}"  MaxWidth="350" TextTrimming="CharacterEllipsis" ToolTip="{Binding}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+                <ComboBox.ContextMenu>
+                    <ContextMenu Background="{DynamicResource MenuBackgroundBrush}" Foreground="{DynamicResource MenuForegroundBrush}"
+                                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="0">
+                        <ContextMenu.Resources>
+                            <Style TargetType="MenuItem" BasedOn="{StaticResource ContextMenuItemStyle}"/>
+                        </ContextMenu.Resources>
+                        <MenuItem Header="Очистити" Click="TxtClear_Click" CommandParameter="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                        <MenuItem Header="Вирізати" Command="ApplicationCommands.Cut"/>
+                        <MenuItem Header="Копіювати" Command="ApplicationCommands.Copy"/>
+                        <MenuItem Header="Вставити" Command="ApplicationCommands.Paste"/>
+                    </ContextMenu>
+                </ComboBox.ContextMenu>
+            </ComboBox>
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button x:Name="SearchButton" Height="25" Padding="4,0" Click="SearchButton_Click">
+                    <Path Data="{StaticResource SearchIcon}" Fill="{DynamicResource TextForegroundBrush}" Width="15" Height="15" Stretch="Uniform"/>
+                </Button>
+                <CheckBox x:Name="WholeWordCheckBox" Margin="10,0,10,0" VerticalAlignment="Center" Checked="ChkMutualExclusive_Changed" Unchecked="ChkMutualExclusive_Changed">
+                    <Border Background="Transparent" Padding="0">
+                        <Path Data="{StaticResource WholeWordIcon}" Fill="{DynamicResource TextForegroundBrush}" Width="20" Height="18" Stretch="Uniform"/>
+                    </Border>
+                </CheckBox>
+                <CheckBox x:Name="CaseSensitiveCheckBox" Margin="0,0,10,0" VerticalAlignment="Center">
+                    <Border Background="Transparent" Padding="0">
+                        <Path Data="{StaticResource MatchCaseIcon}" Fill="{DynamicResource TextForegroundBrush}" Width="18" Height="16" Stretch="Uniform"/>
+                    </Border>
+                </CheckBox>
+                <CheckBox x:Name="ExactMatchCheckBox" VerticalAlignment="Center" Checked="ChkMutualExclusive_Changed" Unchecked="ChkMutualExclusive_Changed">
+                    <Border Background="Transparent" Padding="0">
+                        <Path Data="{StaticResource ExactMatchIcon}" Fill="{DynamicResource TextForegroundBrush}" Width="16" Height="13" Stretch="Uniform"/>
+                    </Border>
+                </CheckBox>
+            </StackPanel>
+        </Grid>
+        <!-- Рядок фільтрів + статус -->
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <!-- Кнопки фільтра — приховуються в режимі ID -->
+            <StackPanel x:Name="FilterPanel" Grid.Column="0" Orientation="Horizontal">
+                <Button x:Name="FilterBothButton" Content="В обох стовпцях"  Width="Auto" Height="20" Margin="0,0,10,0" Padding="5,0" IsEnabled="False"
+                        Click="FilterBothButton_Click"/>
+                <Button x:Name="FilterOriginalButton" Content="Лише в оригіналі" Width="Auto" Height="20" Margin="0,0,10,0" Padding="5,0" IsEnabled="False"
+                        Click="FilterOriginalButton_Click"/>
+                <Button x:Name="FilterTranslationButton" Content="Лише в перекладі" Width="Auto" Height="20" Margin="0,0,10,0" Padding="5,0" IsEnabled="False"
+                        Click="FilterTranslationButton_Click"/>
+                <Button x:Name="FilterResetButton" Content="Усі" Width="Auto" Height="20" Margin="0,0,10,0" Padding="5,0" IsEnabled="False"
+                        Click="FilterResetButton_Click"/>
+            </StackPanel>
+            <TextBlock x:Name="StatusText" Grid.Column="1" VerticalAlignment="Center" Foreground="{DynamicResource TextForegroundBrush}" Opacity="0.8" 
+                       Height="20" HorizontalAlignment="Right"/>
+        </Grid>
+        <!-- Список результатів -->
+        <ListBox x:Name="ResultsList" Background="{DynamicResource DataGridBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="ResultsList_SelectionChanged" VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.CacheLength="3" VirtualizingPanel.CacheLengthUnit="Page" VirtualizingPanel.ScrollUnit="Pixel">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel VirtualizingPanel.VirtualizationMode="Recycling"/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.Template>
+                <ControlTemplate TargetType="ListBox">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                        <ScrollViewer Focusable="False" Padding="{TemplateBinding Padding}">
+                            <ScrollViewer.Template>
+                                <ControlTemplate TargetType="ScrollViewer">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <ScrollContentPresenter Grid.Column="0" Grid.Row="0" CanContentScroll="{TemplateBinding CanContentScroll}"/>
+                                        <ScrollBar x:Name="PART_VerticalScrollBar" Grid.Column="1" Grid.Row="0" Orientation="Vertical" 
+                                                   Maximum="{TemplateBinding ScrollableHeight}" ViewportSize="{TemplateBinding ViewportHeight}" 
+                                                   Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                                   Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </ScrollViewer.Template>
+                            <ItemsPresenter/>
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </ListBox.Template>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Margin" Value="0"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ListBoxSearchResultSelection}"/>
+                                        <!-- НЕ змінюємо Foreground, залишаємо стандартний -->
+                                    </Trigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsSelected" Value="True"/>
+                                            <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                        </MultiTrigger.Conditions>
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ListBoxSearchResultSelection}"/>
+                                        <!-- НЕ змінюємо Foreground -->
+                                    </MultiTrigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ListBoxSearchResultNotSelecting}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,0.5" Padding="4,3">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <!-- Рядок 0: №(рядку) — Стовпець — Файл -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <TextBlock Text="№" Opacity="0.5" Margin="0,0,1,0"/>
+                                <TextBlock Text="{Binding DisplayRowNumber}" FontWeight="SemiBold" Margin="0,0,4,0"/>
+                                <TextBlock Text="—" Opacity="0.5" Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding ColumnLabel}" FontWeight="SemiBold" Margin="0,0,4,0"/>
+                                <TextBlock Text="—" Opacity="0.5" Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding FileName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <!-- Рядок 1: ID рядка (якщо не пошук по ID) -->
+                            <TextBlock Grid.Row="1" Text="{Binding Term}" Margin="0,1,0,0" Opacity="0.7" FontStyle="Italic"
+                                       Visibility="{Binding ShowTerm, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <!-- Рядок 2: звичайне підсвічування (не SpellCheck) -->
+                            <TextBlock Grid.Row="2" Margin="0,2,0,0" TextWrapping="Wrap" 
+                                       Visibility="{Binding IsSpellCheckResult, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <local:TextBlockHighlightHelper.Highlight>
+                                    <MultiBinding Converter="{StaticResource HighlightDataConverter}">
+                                        <Binding Path="Preview"/>
+                                        <Binding Path="SearchQuery"/>
+                                        <Binding Path="Comparison"/>
+                                        <Binding Path="IsRegex"/>
+                                    </MultiBinding>
+                                </local:TextBlockHighlightHelper.Highlight>
+                            </TextBlock>
+                            <!-- Рядок 2: підсвічування орфо-помилок -->
+                            <TextBlock Grid.Row="2" Margin="0,2,0,0" TextWrapping="Wrap" 
+                                       Visibility="{Binding IsSpellCheckResult, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <local:SpellCheckHighlightHelper.Highlight>
+                                    <MultiBinding Converter="{StaticResource SpellCheckHighlightDataConverter}">
+                                        <Binding Path="Preview"/>
+                                        <Binding Path="MisspelledWords"/>
+                                    </MultiBinding>
+                                </local:SpellCheckHighlightHelper.Highlight>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</Window>
