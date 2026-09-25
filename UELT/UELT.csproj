@@ -14,10 +14,12 @@
 	  <Company>Hikaro</Company>
 	  <Product>UELT</Product>
 	  <Copyright>© Hikaro 2026</Copyright>
-	  <Version>1.2.0</Version>
-	  <FileVersion>1.2.0</FileVersion>
-	  <AssemblyVersion>1.2.0</AssemblyVersion>
+	  <Version>1.2.1</Version>
 	  <Authors>Hikaro</Authors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(CIVersion)' != ''">
+    <Version>$(CIVersion)</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

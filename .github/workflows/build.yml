@@ -1,0 +1,39 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Manual build
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install dotnet-releaser
+        run: dotnet tool install --global dotnet-releaser
+
+      - name: Build packages
+        run: dotnet-releaser build --force dotnet-releaser.toml
+
+      - name: Extract executable
+        shell: pwsh
+        run: Expand-Archive -Path (Get-ChildItem artifacts-dotnet-releaser/*.zip)[0].FullName -DestinationPath exe -Force
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: UELT-win-x64-run${{ github.run_number }}
+          path: exe/UELT.exe
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,25 @@
+profile = "custom"
+
+[msbuild]
+project = "UELT/UELT.csproj"
+configuration = "Release"
+
+[msbuild.properties]
+PublishTrimmed = false
+SelfContained = true
+PublishSingleFile = true
+PublishReadyToRun = true
+IncludeNativeLibrariesForSelfExtract = true
+EnableCompressionInSingleFile = true
+DebugType = "none"
+
+[nuget]
+publish = false
+
+[github]
+user = "hikarosato"
+repo = "UELT"
+
+[[pack]]
+rid = ["win-x64"]
+kinds = ["zip"]
