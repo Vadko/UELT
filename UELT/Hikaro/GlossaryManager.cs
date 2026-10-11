@@ -2,18 +2,23 @@
 using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Windows;
 
 namespace UELT.Hikaro;
 
-public class GlossaryManager
+// UI hooks (ReportError, OnEntriesChanged) are implemented in GlossaryManager.Wpf.cs (GUI) and in the CLI project.
+public partial class GlossaryManager
 {
     public static readonly GlossaryManager Instance = new();
     private GlossaryManager() { }
 
     public ObservableCollection<GlossaryEntry> Entries { get; } = new();
 
-    private static string GlossaryPath => Path.Combine(AppContext.BaseDirectory, "Glossary.json");
+    public static string GlossaryPathOverride { get; set; }
+
+    private static string GlossaryPath => GlossaryPathOverride ?? Path.Combine(AppContext.BaseDirectory, "Glossary.json");
+
+    static partial void ReportError(string message, string caption);
+    partial void OnEntriesChanged();
 
     public void Load()
     {
@@ -34,11 +39,11 @@ public class GlossaryManager
                 Entries.Add(entry);
             }
 
-            SpellCheckService.RebuildGlossaryCache(Entries);
+            OnEntriesChanged();
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Не вдалося завантажити глосарій:\n{ex.Message}", "Глосарій", MessageBoxButton.OK);
+            ReportError($"Не вдалося завантажити глосарій:\n{ex.Message}", "Глосарій");
         }
     }
 
@@ -58,11 +63,11 @@ public class GlossaryManager
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
             File.WriteAllText(GlossaryPath, json, new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
-            SpellCheckService.RebuildGlossaryCache(Entries);
+            OnEntriesChanged();
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Не вдалося зберегти глосарій:\n{ex.Message}", "Глосарій", MessageBoxButton.OK);
+            ReportError($"Не вдалося зберегти глосарій:\n{ex.Message}", "Глосарій");
         }
     }
 

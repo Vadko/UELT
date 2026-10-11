@@ -1,0 +1,6 @@
+# Keep the smoke test runnable by Git Bash on Windows and the fixtures byte-exact on every OS.
+*.sh text eol=lf
+tests/fixtures/*.txt text eol=lf
+*.locres binary
+*.uasset binary
+*.uexp binary

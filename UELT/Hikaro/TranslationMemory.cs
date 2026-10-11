@@ -1,12 +1,14 @@
 ﻿using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
-using System.Windows;
 
 namespace UELT;
 
-public class TranslationMemory : INotifyPropertyChanged
+// ReportError is implemented in TranslationMemory.Wpf.cs (GUI) and in the CLI project.
+public partial class TranslationMemory : INotifyPropertyChanged
 {
+    static partial void ReportError(string message, string caption);
+
     public string FilePath { get; }
 
     private string _name = "";
@@ -59,7 +61,7 @@ public class TranslationMemory : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Не вдалося завантажити пам’ять «{Name}»:\n{ex.Message}", "Помилка", MessageBoxButton.OK);
+            ReportError($"Не вдалося завантажити пам’ять «{Name}»:\n{ex.Message}", "Помилка");
         }
     }
 
@@ -105,7 +107,7 @@ public class TranslationMemory : INotifyPropertyChanged
                 _dirty = true;
             }
 
-            MessageBox.Show($"Не вдалося зберегти пам’ять «{Name}»:\n{ex.Message}", "Помилка", MessageBoxButton.OK);
+            ReportError($"Не вдалося зберегти пам’ять «{Name}»:\n{ex.Message}", "Помилка");
         }
     }
 

@@ -37,3 +37,63 @@ jobs:
           path: exe/UELT.exe
           if-no-files-found: error
           retention-days: 30
+
+  cli:
+    name: Manual CLI build (${{ matrix.rid }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: macos-latest
+            rid: osx-arm64
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish CLI
+        shell: bash
+        run: >
+          dotnet publish UELT.Cli/UELT.Cli.csproj -c Release -r ${{ matrix.rid }}
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:PublishTrimmed=false
+          -p:PublishReadyToRun=false
+          -p:DebugType=none
+          -o cli
+
+      - name: Smoke test
+        shell: bash
+        run: bash UELT.Cli/tests/smoke.sh "cli/uelt-cli${{ matrix.rid == 'win-x64' && '.exe' || '' }}"
+
+      - name: Package
+        shell: bash
+        run: |
+          mkdir dist
+          if [ "${{ matrix.rid }}" = "win-x64" ]; then
+            cp cli/uelt-cli.exe dist/uelt-cli.exe
+          else
+            chmod +x cli/uelt-cli
+            # tar keeps the executable bit (zip artifacts would drop it).
+            tar -C cli -czf "dist/uelt-cli-${{ matrix.rid }}.tar.gz" uelt-cli
+          fi
+
+      - name: Upload CLI
+        uses: actions/upload-artifact@v4
+        with:
+          name: UELT-CLI-${{ matrix.rid }}-run${{ github.run_number }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30

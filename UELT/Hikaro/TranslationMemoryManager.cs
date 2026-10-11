@@ -1,19 +1,24 @@
 ﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
-using System.Windows;
 using UELT.Hikaro;
 
 namespace UELT;
 
-public class TranslationMemoryManager
+// ReportError is implemented in TranslationMemoryManager.Wpf.cs (GUI) and in the CLI project.
+public partial class TranslationMemoryManager
 {
     public static readonly TranslationMemoryManager Instance = new();
     private TranslationMemoryManager() { }
 
     public ObservableCollection<TranslationMemory> Memories { get; } = new();
 
-    private static string MemoriesFolder => Path.Combine(AppContext.BaseDirectory, "TranslationMemories");
+    public static string MemoriesFolderOverride { get; set; }
+
+    private static string MemoriesFolder => MemoriesFolderOverride ?? Path.Combine(AppContext.BaseDirectory, "TranslationMemories");
+
+    static partial void ReportError(string message, string caption);
+
     private static string StateFilePath => Path.Combine(MemoriesFolder, "_active.json");
     private const string Extension = ".tm.json";
 
@@ -74,7 +79,7 @@ public class TranslationMemoryManager
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"{ex.Message}", "Не вдалося зберегти налаштування", MessageBoxButton.OK);
+            ReportError($"{ex.Message}", "Не вдалося зберегти налаштування");
         }
     }
 

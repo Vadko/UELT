@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Cross-platform command-line version of UELT. The format code is shared with the GUI
+       project (../UELT) through linked files, so both always use the same parsers/writers. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <AssemblyName>uelt-cli</AssemblyName>
+    <RootNamespace>UELT.Cli</RootNamespace>
+    <!-- No libicu needed on Linux; all shared code compares ordinally / with InvariantCulture. -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+
+    <AssemblyTitle>UELT CLI</AssemblyTitle>
+    <AssemblyDescription>Консольна версія інструмента для редагування файлів локалізацій Unreal Engine.</AssemblyDescription>
+    <Company>Hikaro</Company>
+    <Product>UELT</Product>
+    <Copyright>© Hikaro 2026</Copyright>
+    <Version>1.2.2</Version>
+    <Authors>Hikaro</Authors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(CIVersion)' != ''">
+    <Version>$(CIVersion)</Version>
+  </PropertyGroup>
+
+  <!-- Shared (WPF-free) sources from the GUI project. -->
+  <ItemGroup>
+    <Compile Include="..\UELT\Core\**\*.cs" Link="Shared\Core\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\UELT\Hikaro\AppVersion.cs;..\UELT\Hikaro\MappingType.cs;..\UELT\Hikaro\DataGridItem.cs;..\UELT\Hikaro\RowStatusManager.cs;..\UELT\Hikaro\StatisticsManager.cs;..\UELT\Hikaro\PluralizationHelper.cs;..\UELT\Hikaro\CommonErrorChecker.cs;..\UELT\Hikaro\LocresCompareCsvExporter.cs;..\UELT\Hikaro\LocresCompareItem.cs;..\UELT\Hikaro\GlossaryEntry.cs;..\UELT\Hikaro\GlossaryManager.cs;..\UELT\Hikaro\TranslationMemory.cs;..\UELT\Hikaro\TranslationMemoryManager.cs;..\UELT\Hikaro\SettingsManager.cs" Link="Shared\Hikaro\%(Filename)%(Extension)" />
+    <Compile Include="..\UELT\Hikaro\Imports\CsvHelper.cs;..\UELT\Hikaro\Imports\TxtHelper.cs;..\UELT\Hikaro\Imports\ImportFileNameMatcher.cs" Link="Shared\Hikaro\Imports\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="tests\**" />
+    <None Remove="tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="ZstdSharp.Port" Version="0.8.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="UAssetAPI">
+      <HintPath>..\UELT\Lib\UAssetAPI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

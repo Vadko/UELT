@@ -1,0 +1,12 @@
+# UELT CLI smoke-test fixture (ID=text). Lines starting with # are ignored.
+Menu::Start=Start Game
+Menu::Options=Options
+Menu::Quit=Quit
+Items::Sword=Iron sword
+Items::Sword_Desc=A plain sword.<lf>Deals {Damage} damage.
+Items::Shield=Wooden shield
+Dialog::Hello=Hello, {PlayerName}!
+Dialog::Unicode=Привіт, світе — «тест» ✓
+Dialog::Tabs=Name:<tb>Value
+Dialog::Empty=
+NoNamespaceKey=Value without namespace

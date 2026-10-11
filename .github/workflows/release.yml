@@ -13,8 +13,8 @@ concurrency:
   group: release-${{ github.ref }}
 
 jobs:
-  release:
-    name: Build and publish
+  gui:
+    name: Build GUI (win-x64)
     runs-on: windows-latest
 
     steps:
@@ -43,8 +43,91 @@ jobs:
           Expand-Archive -Path (Get-ChildItem artifacts-dotnet-releaser/*.zip)[0].FullName -DestinationPath exe -Force
           Rename-Item exe/UELT.exe "UELT-${{ github.ref_name }}-win-x64.exe"
 
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: gui-win-x64
+          path: exe/UELT-*-win-x64.exe
+          if-no-files-found: error
+
+  cli:
+    name: Build CLI (${{ matrix.rid }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          # Built on macOS so the arm64 apphost gets the (ad-hoc) code signature Apple Silicon requires.
+          - os: macos-latest
+            rid: osx-arm64
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish CLI
+        shell: bash
+        env:
+          # Picked up by the CIVersion condition in UELT.Cli.csproj.
+          CIVersion: ${{ github.ref_name }}
+        run: >
+          dotnet publish UELT.Cli/UELT.Cli.csproj -c Release -r ${{ matrix.rid }}
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:PublishTrimmed=false
+          -p:PublishReadyToRun=false
+          -p:DebugType=none
+          -o cli
+
+      - name: Smoke test
+        shell: bash
+        run: bash UELT.Cli/tests/smoke.sh "cli/uelt-cli${{ matrix.rid == 'win-x64' && '.exe' || '' }}"
+
+      - name: Package
+        shell: bash
+        run: |
+          mkdir dist
+          if [ "${{ matrix.rid }}" = "win-x64" ]; then
+            cp cli/uelt-cli.exe "dist/UELT-CLI-${{ github.ref_name }}-win-x64.exe"
+          else
+            chmod +x cli/uelt-cli
+            # tar keeps the executable bit (zip artifacts would drop it).
+            tar -C cli -czf "dist/UELT-CLI-${{ github.ref_name }}-${{ matrix.rid }}.tar.gz" uelt-cli
+          fi
+
+      - name: Upload CLI
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-${{ matrix.rid }}
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    needs: [gui, cli]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
+      # One release step for all assets (GUI exe + CLI for every platform).
       - name: Publish release
         uses: softprops/action-gh-release@v3
         with:
-          files: exe/UELT-*-win-x64.exe
+          files: out/*
           generate_release_notes: true

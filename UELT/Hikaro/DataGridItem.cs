@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
-using System.Windows.Media;
 
 namespace UELT.Hikaro;
 
-public class DataGridItem : INotifyPropertyChanged
+// WPF-only members (StatusSymbol) live in DataGridItem.Wpf.cs so the CLI can link this file.
+public partial class DataGridItem : INotifyPropertyChanged
 {
     private string _id = "";
     private string _text = "";
@@ -128,17 +128,10 @@ public class DataGridItem : INotifyPropertyChanged
             {
                 _status = value;
                 OnPropertyChanged(nameof(Status));
-                OnPropertyChanged(nameof(StatusSymbol));
+                OnPropertyChanged("StatusSymbol");
             }
         }
     }
-
-    public Geometry StatusSymbol => _status switch
-    {
-        RowStatus.NeedsReview => (Geometry)App.Current.Resources["NeedsReviewIcon"],
-        RowStatus.Approved => (Geometry)App.Current.Resources["ApprovedIcon"],
-        _ => null
-    };
 
     public string DisplayText
     {
