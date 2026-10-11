@@ -74,7 +74,7 @@ public static class Program
 
         if (first is "--version" or "-v" or "version")
         {
-            Log.Out(AppVersion.Version);
+            Log.Out($"uelt-cli {AppVersion.Version}");
             return ExitCodes.Ok;
         }
 

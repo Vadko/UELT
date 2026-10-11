@@ -61,7 +61,7 @@ has() { norm "$1" | grep -qF -- "$2"; }
 grep -v '^#' fx/sample.txt | tr -d '\r' > expected.txt
 
 echo "== general"
-check "--version prints a version" bash -c "'$CLI' --version | grep -Eq '^[0-9]+\.[0-9]+'"
+check "--version prints a version" bash -c "'$CLI' --version | grep -Eq '^uelt-cli [0-9]+\.[0-9]+'"
 code "help" 0 help
 code "help pack" 0 help pack
 code "pack --help" 0 pack --help
